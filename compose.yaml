@@ -1,0 +1,21 @@
+services:
+  portal:
+    build: .
+    container_name: basnana-portal
+    restart: always
+    ports:
+      - "2022:2022"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: basnana-cloudflared
+    restart: always
+    depends_on:
+      portal:
+        condition: service_healthy
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN:-SET_TOKEN_IN_DOT_ENV}
