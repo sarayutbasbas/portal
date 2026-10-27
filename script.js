@@ -39,11 +39,7 @@ function setEnvironment(environment, shouldSave = true) {
     card.querySelector(".portal-domain").textContent = new URL(destination).hostname;
   });
   const count = portalCards.filter((card) => !card.hidden).length;
-  document.querySelector("#app-count").textContent = `${count} แอป`;
   document.querySelector("#footer-count").textContent = `${count} places to go`;
-  document.querySelector("#environment-note").textContent = isDev
-    ? "เปิด Dev · แอปที่ไม่มี Dev ใช้ Production"
-    : "เว็บแอปเวอร์ชันใช้งานจริง";
   if (shouldSave) {
     writeStorage("portal-environment", environment);
     say(`เปลี่ยนเป็นโหมด ${isDev ? "Dev" : "Production"} แล้ว มี ${count} แอป`);

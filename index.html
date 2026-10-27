@@ -19,33 +19,31 @@
         document.documentElement.dataset.theme = theme;
       } catch {}
     </script>
-    <link rel="stylesheet" href="/styles.css?v=20261027-2" />
-    <script src="/script.js?v=20261027-2" defer></script>
+    <link rel="stylesheet" href="/styles.css?v=20261027-3" />
+    <script src="/script.js?v=20261027-3" defer></script>
   </head>
   <body>
     <main class="page-shell">
       <h1 class="visually-hidden">Basnana Portal</h1>
 
       <div class="control-bar">
-        <div class="portal-count">
-          <span class="brand-dot" aria-hidden="true"></span>
-          <span id="app-count">7 แอป</span>
+        <div class="environment-switch" role="group" aria-label="เลือกโหมด Portal">
+          <button class="control-button environment-button" type="button" data-environment-option="production" aria-controls="portal-list" aria-pressed="true">Production</button>
+          <button class="control-button environment-button" type="button" data-environment-option="dev" aria-controls="portal-list" aria-pressed="false">Dev</button>
         </div>
 
         <div class="view-switch" role="group" aria-label="เลือกรูปแบบการแสดงผล">
-          <button class="control-button view-button" type="button" data-view-option="rows" aria-controls="portal-list" aria-pressed="true" aria-label="แสดงหนึ่งแอปต่อแถว">
+          <button class="control-button view-button" type="button" data-view-option="rows" aria-controls="portal-list" aria-pressed="true" aria-label="แสดงหนึ่งแอปต่อแถว" title="1 ต่อแถว">
             <svg viewBox="0 0 20 20" aria-hidden="true">
               <rect x="2" y="3" width="16" height="5" rx="1.5" />
               <rect x="2" y="12" width="16" height="5" rx="1.5" />
             </svg>
-            <span>1 ต่อแถว</span>
           </button>
-          <button class="control-button view-button" type="button" data-view-option="grid" aria-controls="portal-list" aria-pressed="false" aria-label="แสดงสองแอปต่อแถว">
+          <button class="control-button view-button" type="button" data-view-option="grid" aria-controls="portal-list" aria-pressed="false" aria-label="แสดงสองแอปต่อแถว" title="2 ต่อแถว">
             <svg viewBox="0 0 20 20" aria-hidden="true">
               <rect x="2" y="3" width="7" height="14" rx="1.5" />
               <rect x="11" y="3" width="7" height="14" rx="1.5" />
             </svg>
-            <span>2 ต่อแถว</span>
           </button>
         </div>
 
@@ -60,14 +58,6 @@
         </button>
 
         <span class="visually-hidden" id="portal-announcement" aria-live="polite"></span>
-      </div>
-
-      <div class="environment-bar">
-        <div class="environment-switch" role="group" aria-label="เลือกโหมด Portal">
-          <button class="control-button environment-button" type="button" data-environment-option="production" aria-controls="portal-list" aria-pressed="true">Production</button>
-          <button class="control-button environment-button" type="button" data-environment-option="dev" aria-controls="portal-list" aria-pressed="false">Dev</button>
-        </div>
-        <span class="environment-note" id="environment-note">เว็บแอปเวอร์ชันใช้งานจริง</span>
       </div>
 
       <nav class="portal-list" id="portal-list" data-view="rows" aria-label="เว็บแอปทั้งหมด">
