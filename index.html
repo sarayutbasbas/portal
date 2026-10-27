@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="th" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#071018" />
+    <meta name="description" content="Portal รวมเว็บแอปของ Basnana ไว้ในที่เดียว" />
+    <meta property="og:title" content="Basnana Portal" />
+    <meta property="og:description" content="เว็บแอปทุกชิ้นของ Basnana รวมอยู่ที่นี่" />
+    <meta property="og:type" content="website" />
+    <title>Basnana Portal</title>
+    <link rel="icon" href="/public/favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("portal-theme");
+        const theme = savedTheme === "light" || savedTheme === "dark"
+          ? savedTheme
+          : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <h1 class="visually-hidden">Basnana Portal</h1>
+
+      <div class="control-bar">
+        <div class="portal-count">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span>7 แอป</span>
+          <span class="sort-hint">ลากปุ่มจุดเพื่อจัดลำดับ</span>
+        </div>
+
+        <div class="control-actions">
+          <div class="view-switch" role="group" aria-label="เลือกรูปแบบการแสดงผล">
+            <button class="control-button view-button" type="button" data-view-option="rows" aria-controls="portal-list" aria-pressed="true" aria-label="แสดงหนึ่งแอปต่อแถว">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <rect x="2" y="3" width="16" height="5" rx="1.5" />
+                <rect x="2" y="12" width="16" height="5" rx="1.5" />
+              </svg>
+              <span>1 ต่อแถว</span>
+            </button>
+            <button class="control-button view-button" type="button" data-view-option="grid" aria-controls="portal-list" aria-pressed="false" aria-label="แสดงสองแอปต่อแถว">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <rect x="2" y="3" width="7" height="14" rx="1.5" />
+                <rect x="11" y="3" width="7" height="14" rx="1.5" />
+              </svg>
+              <span>2 ต่อแถว</span>
+            </button>
+          </div>
+
+          <button class="control-button theme-button" id="theme-button" type="button" aria-label="เปลี่ยนเป็นธีมสว่าง">
+            <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+            </svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 15.2A8 8 0 0 1 8.8 4 8.2 8.2 0 1 0 20 15.2Z" />
+            </svg>
+          </button>
+        </div>
+
+        <span class="visually-hidden" id="portal-announcement" aria-live="polite"></span>
+      </div>
+
+      <nav class="portal-list" id="portal-list" data-view="rows" aria-label="เว็บแอปทั้งหมด">
+        <article class="portal-row games" data-app-id="games">
+          <a class="portal-link" href="https://games.basnana.com">
+            <img class="portal-art" src="/public/assets/art/games.jpg" alt="" fetchpriority="high" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/games.svg" alt="" />
+                <span class="portal-name">Games</span>
+              </span>
+              <span class="portal-description">เลือกเกม แล้วเล่นพร้อมกัน</span>
+              <span class="portal-domain">games.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย Games"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row two-seats" data-app-id="two-seats">
+          <a class="portal-link" href="https://two-seats.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/two-seats.jpg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/two-seats.png" alt="" />
+                <span class="portal-name thai-name">สองที่นั่ง</span>
+              </span>
+              <span class="portal-description">บันทึกหนังทุกเรื่องที่เราดูด้วยกัน</span>
+              <span class="portal-domain">two-seats.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย สองที่นั่ง"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row trip" data-app-id="trip">
+          <a class="portal-link" href="https://trip.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/trip.jpg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/trip.png" alt="" />
+                <span class="portal-name">RouteRao</span>
+              </span>
+              <span class="portal-description">แพลนทริป เก็บความทรงจำ คุมค่าใช้จ่าย</span>
+              <span class="portal-domain">trip.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย RouteRao"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row calio" data-app-id="calio">
+          <a class="portal-link" href="https://calio.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/calio.jpg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/calio.png" alt="" />
+                <span class="portal-name">calio</span>
+              </span>
+              <span class="portal-description">ติดตามแคลอรีและโปรตีนในแต่ละวัน</span>
+              <span class="portal-domain">calio.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย calio"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row portify" data-app-id="portify">
+          <a class="portal-link" href="https://portify.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/portify.jpg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/portify.png" alt="" />
+                <span class="portal-name">Portify</span>
+              </span>
+              <span class="portal-description">ทุกสินทรัพย์ ในมุมมองที่ชัดเจน</span>
+              <span class="portal-domain">portify.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย Portify"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row house-rao" data-app-id="house-rao">
+          <a class="portal-link" href="https://house-rao.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/house-rao.jpg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/house-rao.png" alt="" />
+                <span class="portal-name">HouseRao</span>
+              </span>
+              <span class="portal-description">จัดการของใช้และอาหารในบ้านร่วมกัน</span>
+              <span class="portal-domain">house-rao.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย HouseRao"><span aria-hidden="true"></span></button>
+        </article>
+
+        <article class="portal-row tools" data-app-id="tools">
+          <a class="portal-link" href="https://tools.basnana.com/">
+            <span class="portal-art tools-art" aria-hidden="true"></span>
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/tools.png" alt="" />
+                <span class="portal-name">Toolbox</span>
+              </span>
+              <span class="portal-description">ดาวน์โหลดและบีบอัดไฟล์มีเดียในที่เดียว</span>
+              <span class="portal-domain">tools.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+          <button class="drag-handle" type="button" aria-label="ลากเพื่อย้าย Toolbox"><span aria-hidden="true"></span></button>
+        </article>
+      </nav>
+
+      <footer>
+        <span>Made by Bas</span>
+        <span class="footer-line" aria-hidden="true"></span>
+        <span>7 places to go</span>
+      </footer>
+    </main>
+  </body>
+</html>

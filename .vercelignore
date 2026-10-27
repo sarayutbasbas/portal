@@ -1,0 +1,9 @@
+.agents
+.env
+.env.*
+!.env.example
+.DS_Store
+Dockerfile
+compose.yaml
+nginx.conf
+README.md
