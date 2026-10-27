@@ -11,6 +11,16 @@ const productionUrls = new Map(portalCards.map((card) => {
   const link = card.querySelector(".portal-link");
   return [link, link.getAttribute("href")];
 }));
+const devBadges = new Map(portalCards.flatMap((card) => {
+  const link = card.querySelector(".portal-link");
+  if (!link.dataset.devHref) return [];
+  const badge = document.createElement("span");
+  badge.className = "dev-badge";
+  badge.textContent = "Dev";
+  badge.hidden = true;
+  link.insertBefore(badge, link.querySelector(".visit-icon"));
+  return [[link, badge]];
+}));
 
 function setEnvironment(environment, shouldSave = true) {
   if (!validEnvironments.has(environment)) return;
@@ -23,6 +33,8 @@ function setEnvironment(environment, shouldSave = true) {
     card.hidden = card.hasAttribute("data-dev-only") && !isDev;
     const link = card.querySelector(".portal-link");
     const destination = isDev && link.dataset.devHref ? link.dataset.devHref : productionUrls.get(link);
+    const badge = devBadges.get(link);
+    if (badge) badge.hidden = !isDev;
     link.setAttribute("href", destination);
     card.querySelector(".portal-domain").textContent = new URL(destination).hostname;
   });

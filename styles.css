@@ -399,6 +399,31 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
   opacity: 0.92;
 }
 
+.dev-badge {
+  position: absolute;
+  z-index: 5;
+  top: 19px;
+  right: 61px;
+  min-height: 26px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(163, 220, 255, 0.5);
+  border-radius: 7px;
+  color: #d7f0ff;
+  background: #193748;
+  font: 600 0.72rem/1 "Outfit", sans-serif;
+  pointer-events: none;
+}
+
+.portal-list[data-view="grid"] .dev-badge {
+  top: 13px;
+  right: 50px;
+  min-height: 25px;
+  padding: 0 8px;
+}
+
 .visit-icon {
   position: absolute;
   z-index: 5;
