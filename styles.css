@@ -339,7 +339,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
   width: 38px;
   height: 38px;
   flex: 0 0 auto;
-  border-radius: 10px;
+  border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
 }
@@ -393,6 +393,41 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
   background: #ffcb45;
   font: 600 0.72rem/1 "Outfit", sans-serif;
   pointer-events: none;
+}
+
+.app-status {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #172631;
+  color: #d3dee5;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.app-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.app-status[data-state="up"] { color: #b7f3d0; background: #123b2b; }
+.app-status[data-state="down"] { color: #ffd1d1; background: #642727; }
+.app-status[data-state="protected"] { color: #ffe1a6; background: #503b19; }
+
+.portal-list[data-view="grid"] .app-status {
+  margin-top: 6px;
+  font-size: 0.6rem;
+  padding: 2px 5px;
 }
 
 .portal-list[data-view="grid"] .dev-badge {
@@ -479,7 +514,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 
 .portal-list[data-view="grid"] .portal-row {
   height: auto;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 4 / 5;
 }
 
 .portal-list[data-view="grid"] .portal-art:not(.portal-art-grid) {
@@ -488,7 +523,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 
 .portal-list[data-view="grid"] .portal-art-grid {
   display: block;
-  object-position: center;
+  object-position: center 42%;
 }
 
 .portal-list[data-view="grid"] .row-shade {
@@ -498,7 +533,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 .portal-list[data-view="grid"] .portal-copy {
   align-self: flex-end;
   width: 100%;
-  padding: 74px 12px 14px;
+  padding: 54px 10px 12px;
 }
 
 .portal-list[data-view="grid"] .name-line {
@@ -508,7 +543,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 .portal-list[data-view="grid"] .app-logo {
   width: clamp(28px, 21cqw, 34px);
   height: clamp(28px, 21cqw, 34px);
-  border-radius: 8px;
+  border-radius: 50%;
 }
 
 .portal-list[data-view="grid"] .portal-name,
@@ -599,7 +634,7 @@ footer {
   .app-logo {
     width: 42px;
     height: 42px;
-    border-radius: 11px;
+    border-radius: 50%;
   }
 
   .portal-description {
@@ -616,11 +651,11 @@ footer {
 
   .portal-list[data-view="grid"] .portal-row {
     height: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 9;
   }
 
   .portal-list[data-view="grid"] .portal-copy {
-    padding: 86px 20px 19px;
+    padding: 54px 20px 16px;
   }
 
   .portal-list[data-view="grid"] .portal-description {

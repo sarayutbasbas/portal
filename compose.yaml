@@ -5,6 +5,16 @@ services:
     restart: always
     ports:
       - "2022:2022"
+    depends_on:
+      status:
+        condition: service_healthy
+
+  status:
+    build:
+      context: .
+      dockerfile: Dockerfile.status
+    container_name: basnana-portal-status
+    restart: always
 
   cloudflared:
     image: cloudflare/cloudflared:latest

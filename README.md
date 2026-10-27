@@ -21,6 +21,28 @@ Production ใช้ URL เว็บจริง ส่วน Dev ใช้ URL
 กำหนด URL Dev ด้วย `data-dev-href` บนลิงก์ใน `index.html` และใช้ `data-dev-only` กับการ์ดที่แสดงเฉพาะ Dev
 ปลายทาง Dev ต้องมี Cloudflare Tunnel และแอป Docker ของตัวเองทำงานอยู่
 
+### สถานะเว็บในโหมด Dev
+
+การ์ดตรวจปลายทางจริงผ่าน `/api/status` เมื่อเข้าโหมด Dev และตรวจซ้ำทุก 30 วินาทีขณะที่หน้าเปิดอยู่
+แสดงออนไลน์, เข้าไม่ได้พร้อมรหัส HTTP, จำกัดการเข้าถึง หรือ ตรวจสอบไม่ได้เมื่อ API ไม่ตอบกลับ
+ตรวจเฉพาะ URL ที่กำหนดไว้ใน `lib/status-check.mjs` ไม่รับ URL จากผู้เรียก และไม่ติดตาม redirect ไป origin อื่น
+แอปที่ใช้ Production เป็น fallback จะตรวจ URL Production นั้นจริง
+
+Vercel ใช้ `api/status.mjs` ส่วน Docker ใช้ service `status` และ Nginx proxy ผ่านพอร์ต 2022 เดิม
+คำสั่ง `docker compose up --build -d portal` จะ build/start service ที่จำเป็นให้ด้วย
+
+ทดสอบระบบตรวจสถานะ:
+
+```bash
+node --test tests/status-check.test.mjs
+```
+
+### ไอคอนบนหน้าจอ Home
+
+ไอคอน Portal มีต้นฉบับ SVG ที่ `public/assets/icons/portal-v2.svg` และ PNG ขนาด 180, 192, 512 พิกเซล
+รองรับ Apple Touch Icon ที่ `/apple-touch-icon.png` และ Web App Manifest ที่ `/manifest.webmanifest`
+หาก iPhone ยังใช้ไอคอนตัวอักษรเก่า ให้ลบทางลัดเดิมแล้วเพิ่มหน้าเว็บลง Home Screen ใหม่ผ่าน Safari
+
 ## First-time setup
 
 สร้างไฟล์ `.env` จากตัวอย่าง แล้วใส่ Cloudflare Tunnel token จริง:

@@ -21,10 +21,65 @@ const devBadges = new Map(portalCards.flatMap((card) => {
   link.insertBefore(badge, link.querySelector(".visit-icon"));
   return [[link, badge]];
 }));
+const statusBadges = new Map(portalCards.map((card) => {
+  const badge = document.createElement("span");
+  badge.className = "app-status";
+  badge.hidden = true;
+  badge.dataset.state = "checking";
+  badge.textContent = "กำลังตรวจสอบ";
+  const copy = card.querySelector(".portal-copy");
+  copy.insertBefore(badge, copy.querySelector(".portal-domain"));
+  return [card, badge];
+}));
+let statusTimer;
+let statusController;
+let statusGeneration = 0;
+
+function stopStatusChecks() {
+  window.clearTimeout(statusTimer);
+  statusController?.abort();
+  statusGeneration++;
+}
+
+async function refreshDevStatus() {
+  if (document.documentElement.dataset.environment !== "dev" || document.hidden) return;
+  const generation = statusGeneration;
+  const controller = new AbortController();
+  statusController = controller;
+  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  const labels = { up: "ออนไลน์", down: "เข้าไม่ได้", protected: "จำกัดการเข้าถึง" };
+  try {
+    const response = await fetch("/api/status", { signal: controller.signal, cache: "no-store" });
+    if (!response.ok) throw new Error("Status API unavailable");
+    const data = await response.json();
+    if (generation !== statusGeneration) return;
+    for (const [card, badge] of statusBadges) {
+      const result = data.apps?.[[...card.classList].find((name) => name !== "portal-row")];
+      const state = result && labels[result.state] ? result.state : "unknown";
+      badge.dataset.state = state;
+      badge.textContent = state === "down" && result.httpStatus
+        ? `เข้าไม่ได้ · ${result.httpStatus}` : labels[state] || "ตรวจสอบไม่ได้";
+      badge.title = `${result?.detail || "ไม่มีผลการตรวจสอบ"}${data.checkedAt ? ` · ตรวจเมื่อ ${new Date(data.checkedAt).toLocaleTimeString("th-TH")}` : ""}`;
+    }
+  } catch {
+    if (generation !== statusGeneration) return;
+    for (const badge of statusBadges.values()) {
+      badge.dataset.state = "unknown";
+      badge.textContent = "ตรวจสอบไม่ได้";
+      badge.title = "ระบบตรวจสอบไม่ตอบกลับ ลองเปิดแอปโดยตรงได้";
+    }
+  } finally {
+    window.clearTimeout(timeout);
+    if (generation === statusGeneration && document.documentElement.dataset.environment === "dev" && !document.hidden) {
+      statusTimer = window.setTimeout(refreshDevStatus, 30000);
+    }
+  }
+}
 
 function setEnvironment(environment, shouldSave = true) {
   if (!validEnvironments.has(environment)) return;
   const isDev = environment === "dev";
+  stopStatusChecks();
   document.documentElement.dataset.environment = environment;
   environmentButtons.forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.environmentOption === environment));
@@ -35,11 +90,17 @@ function setEnvironment(environment, shouldSave = true) {
     const destination = isDev && link.dataset.devHref ? link.dataset.devHref : productionUrls.get(link);
     const badge = devBadges.get(link);
     if (badge) badge.hidden = !isDev;
+    const statusBadge = statusBadges.get(card);
+    statusBadge.hidden = !isDev;
+    statusBadge.dataset.state = "checking";
+    statusBadge.textContent = "กำลังตรวจสอบ";
+    statusBadge.removeAttribute("title");
     link.setAttribute("href", destination);
     card.querySelector(".portal-domain").textContent = new URL(destination).hostname;
   });
   const count = portalCards.filter((card) => !card.hidden).length;
   document.querySelector("#footer-count").textContent = `${count} places to go`;
+  if (isDev) refreshDevStatus();
   if (shouldSave) {
     writeStorage("portal-environment", environment);
     say(`เปลี่ยนเป็นโหมด ${isDev ? "Dev" : "Production"} แล้ว มี ${count} แอป`);
@@ -113,4 +174,9 @@ viewButtons.forEach((button) => {
 
 themeButton?.addEventListener("click", () => {
   setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+
+document.addEventListener("visibilitychange", () => {
+  stopStatusChecks();
+  if (!document.hidden) refreshDevStatus();
 });
