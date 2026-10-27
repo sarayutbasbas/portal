@@ -280,6 +280,10 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
     #285d49;
 }
 
+.portal-art-grid {
+  display: none;
+}
+
 .tools-art::before,
 .tools-art::after {
   content: "";
@@ -474,10 +478,16 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 }
 
 .portal-list[data-view="grid"] .portal-row {
-  height: clamp(218px, 60vw, 260px);
+  height: auto;
+  aspect-ratio: 2 / 3;
 }
 
-.portal-list[data-view="grid"] .portal-art {
+.portal-list[data-view="grid"] .portal-art:not(.portal-art-grid) {
+  display: none;
+}
+
+.portal-list[data-view="grid"] .portal-art-grid {
+  display: block;
   object-position: center;
 }
 
@@ -605,7 +615,8 @@ footer {
   }
 
   .portal-list[data-view="grid"] .portal-row {
-    height: 264px;
+    height: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .portal-list[data-view="grid"] .portal-copy {
