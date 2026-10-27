@@ -203,6 +203,53 @@ html[data-theme="light"] .moon-icon {
   gap: 12px;
 }
 
+[hidden] {
+  display: none !important;
+}
+
+.environment-bar {
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.environment-switch {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface);
+}
+
+.environment-button {
+  min-width: 62px;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.8rem;
+}
+
+.environment-button[aria-pressed="true"] {
+  color: var(--text);
+  background: var(--surface-active);
+}
+
+.environment-button[data-environment-option="dev"][aria-pressed="true"] {
+  color: #a3dcff;
+  background: #193748;
+}
+
+html[data-theme="light"] .environment-button[data-environment-option="dev"][aria-pressed="true"] {
+  color: #125376;
+  background: #d8edf9;
+}
+
+.environment-note {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
 .portal-row {
   --row-accent: #ffffff;
   position: relative;
@@ -402,6 +449,8 @@ html[data-theme="light"] .moon-icon {
 .house-rao { --row-accent: #e9b3cf; }
 .house-rao .portal-art { object-position: 64% center; }
 .tools { --row-accent: #bde4ce; }
+.movie { --row-accent: #e5aaff; }
+.movie .portal-art { object-position: 65% center; }
 
 .portal-row:hover .portal-art {
   transform: scale(1.025);

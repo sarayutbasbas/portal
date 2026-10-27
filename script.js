@@ -4,6 +4,39 @@ const themeButton = document.querySelector("#theme-button");
 const announcement = document.querySelector("#portal-announcement");
 const themeColor = document.querySelector('meta[name="theme-color"]');
 const validViews = new Set(["rows", "grid"]);
+const environmentButtons = [...document.querySelectorAll("[data-environment-option]")];
+const portalCards = [...document.querySelectorAll(".portal-row")];
+const validEnvironments = new Set(["production", "dev"]);
+const productionUrls = new Map(portalCards.map((card) => {
+  const link = card.querySelector(".portal-link");
+  return [link, link.getAttribute("href")];
+}));
+
+function setEnvironment(environment, shouldSave = true) {
+  if (!validEnvironments.has(environment)) return;
+  const isDev = environment === "dev";
+  document.documentElement.dataset.environment = environment;
+  environmentButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.environmentOption === environment));
+  });
+  portalCards.forEach((card) => {
+    card.hidden = card.hasAttribute("data-dev-only") && !isDev;
+    const link = card.querySelector(".portal-link");
+    const destination = isDev && link.dataset.devHref ? link.dataset.devHref : productionUrls.get(link);
+    link.setAttribute("href", destination);
+    card.querySelector(".portal-domain").textContent = new URL(destination).hostname;
+  });
+  const count = portalCards.filter((card) => !card.hidden).length;
+  document.querySelector("#app-count").textContent = `${count} แอป`;
+  document.querySelector("#footer-count").textContent = `${count} places to go`;
+  document.querySelector("#environment-note").textContent = isDev
+    ? "เปิด Dev · แอปที่ไม่มี Dev ใช้ Production"
+    : "เว็บแอปเวอร์ชันใช้งานจริง";
+  if (shouldSave) {
+    writeStorage("portal-environment", environment);
+    say(`เปลี่ยนเป็นโหมด ${isDev ? "Dev" : "Production"} แล้ว มี ${count} แอป`);
+  }
+}
 
 function readStorage(key, fallback) {
   try {
@@ -59,6 +92,12 @@ function setTheme(theme, shouldSave = true) {
 const storedView = readStorage("portal-view", "rows");
 setView(validViews.has(storedView) ? storedView : "rows", false);
 setTheme(document.documentElement.dataset.theme, false);
+const storedEnvironment = readStorage("portal-environment", "production");
+setEnvironment(validEnvironments.has(storedEnvironment) ? storedEnvironment : "production", false);
+
+environmentButtons.forEach((button) => {
+  button.addEventListener("click", () => setEnvironment(button.dataset.environmentOption));
+});
 
 viewButtons.forEach((button) => {
   button.addEventListener("click", () => setView(button.dataset.viewOption));

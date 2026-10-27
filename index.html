@@ -29,7 +29,7 @@
       <div class="control-bar">
         <div class="portal-count">
           <span class="brand-dot" aria-hidden="true"></span>
-          <span>7 แอป</span>
+          <span id="app-count">7 แอป</span>
         </div>
 
         <div class="view-switch" role="group" aria-label="เลือกรูปแบบการแสดงผล">
@@ -62,9 +62,17 @@
         <span class="visually-hidden" id="portal-announcement" aria-live="polite"></span>
       </div>
 
+      <div class="environment-bar">
+        <div class="environment-switch" role="group" aria-label="เลือกโหมด Portal">
+          <button class="control-button environment-button" type="button" data-environment-option="production" aria-controls="portal-list" aria-pressed="true">Production</button>
+          <button class="control-button environment-button" type="button" data-environment-option="dev" aria-controls="portal-list" aria-pressed="false">Dev</button>
+        </div>
+        <span class="environment-note" id="environment-note">เว็บแอปเวอร์ชันใช้งานจริง</span>
+      </div>
+
       <nav class="portal-list" id="portal-list" data-view="rows" aria-label="เว็บแอปทั้งหมด">
         <article class="portal-row games">
-          <a class="portal-link" href="https://games.basnana.com">
+          <a class="portal-link" href="https://games.basnana.com" data-dev-href="https://bn-games.basnana.com/">
             <img class="portal-art" src="/public/assets/art/games.jpg" alt="" fetchpriority="high" />
             <span class="row-shade" aria-hidden="true"></span>
             <span class="portal-copy">
@@ -96,7 +104,7 @@
         </article>
 
         <article class="portal-row trip">
-          <a class="portal-link" href="https://trip.basnana.com/">
+          <a class="portal-link" href="https://trip.basnana.com/" data-dev-href="https://bn-trip.basnana.com/">
             <img class="portal-art" src="/public/assets/art/trip.jpg" alt="" loading="lazy" />
             <span class="row-shade" aria-hidden="true"></span>
             <span class="portal-copy">
@@ -144,7 +152,7 @@
         </article>
 
         <article class="portal-row house-rao">
-          <a class="portal-link" href="https://house-rao.basnana.com/">
+          <a class="portal-link" href="https://house-rao.basnana.com/" data-dev-href="https://bn-house-rao.basnana.com/">
             <img class="portal-art" src="/public/assets/art/house-rao.jpg" alt="" loading="lazy" />
             <span class="row-shade" aria-hidden="true"></span>
             <span class="portal-copy">
@@ -160,7 +168,7 @@
         </article>
 
         <article class="portal-row tools">
-          <a class="portal-link" href="https://tools.basnana.com/">
+          <a class="portal-link" href="https://tools.basnana.com/" data-dev-href="https://bn-tools.basnana.com/">
             <span class="portal-art tools-art" aria-hidden="true"></span>
             <span class="row-shade" aria-hidden="true"></span>
             <span class="portal-copy">
@@ -174,12 +182,28 @@
             <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
           </a>
         </article>
+
+        <article class="portal-row movie" data-dev-only hidden>
+          <a class="portal-link" href="https://movie.basnana.com/" data-dev-href="https://movie.basnana.com/">
+            <img class="portal-art" src="/public/assets/art/movie.svg" alt="" loading="lazy" />
+            <span class="row-shade" aria-hidden="true"></span>
+            <span class="portal-copy">
+              <span class="name-line">
+                <img class="app-logo" src="/public/assets/logos/movie.svg" alt="" />
+                <span class="portal-name">Movie</span>
+              </span>
+              <span class="portal-description">เปิดโลกภาพยนตร์ในโรงหนังของคุณ</span>
+              <span class="portal-domain">movie.basnana.com</span>
+            </span>
+            <span class="visit-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></span>
+          </a>
+        </article>
       </nav>
 
       <footer>
         <span>Made by Bas</span>
         <span class="footer-line" aria-hidden="true"></span>
-        <span>7 places to go</span>
+        <span id="footer-count">7 places to go</span>
       </footer>
     </main>
   </body>
