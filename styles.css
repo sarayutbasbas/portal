@@ -425,14 +425,17 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 .app-status[data-state="protected"] { color: #ffe1a6; background: #503b19; }
 
 .portal-list[data-view="grid"] .app-status {
-  margin-top: 6px;
+  order: -1;
+  margin-top: 0;
+  margin-bottom: 6px;
   font-size: 0.6rem;
   padding: 2px 5px;
 }
 
 .portal-list[data-view="grid"] .dev-badge {
   top: 13px;
-  right: 50px;
+  left: 9px;
+  right: auto;
   min-height: 25px;
   padding: 0 8px;
 }
