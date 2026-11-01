@@ -69,12 +69,13 @@ html[data-theme="light"] {
 html {
   min-width: 320px;
   background: var(--bg);
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100svh;
   margin: 0;
   color: var(--text);
   background:
@@ -188,6 +189,7 @@ html[data-theme="light"] .moon-icon {
 .portal-list {
   display: grid;
   gap: 12px;
+  touch-action: pan-y pinch-zoom;
 }
 
 [hidden] {
@@ -230,6 +232,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
   isolation: isolate;
   height: 168px;
   overflow: hidden;
+  overflow: clip;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius);
   background: #0d151c;
@@ -256,6 +259,7 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
   height: 100%;
   display: flex;
   overflow: hidden;
+  overflow: clip;
   border-radius: inherit;
   color: #fff;
   text-decoration: none;

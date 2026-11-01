@@ -5,6 +5,8 @@
 ## Production / Dev
 
 สลับโหมดได้จากปุ่มเหนือรายการแอป ระบบจำโหมดล่าสุดไว้ในเบราว์เซอร์
+บนหน้าจอสัมผัส ปัดซ้ายบนลิสต์เพื่อเข้า Dev และปัดขวาเพื่อกลับ Production
+การเลื่อนขึ้นลงและ pinch zoom ยังใช้ท่าทางปกติ ส่วนขอบจอเว้นไว้ให้ gesture Back ของ Safari
 Production ใช้ URL เว็บจริง ส่วน Dev ใช้ URL ด้านล่าง แอปที่ไม่มี Dev ใช้ URL Production เดิม
 
 | แอป | Production | Dev |
@@ -35,6 +37,13 @@ Vercel ใช้ `api/status.mjs` ส่วน Docker ใช้ service `status`
 
 ```bash
 node --test tests/status-check.test.mjs
+```
+
+ทดสอบทั้งหมด รวม gesture และการคืนตำแหน่งเมื่อกด Back:
+
+```bash
+npm ci
+npm test
 ```
 
 ### ไอคอนบนหน้าจอ Home

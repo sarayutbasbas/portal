@@ -1,4 +1,7 @@
 .git
+node_modules
+.vercel
+.env
 .DS_Store
 README.md
 public/assets/art/*.png

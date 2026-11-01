@@ -180,3 +180,109 @@ document.addEventListener("visibilitychange", () => {
   stopStatusChecks();
   if (!document.hidden) refreshDevStatus();
 });
+
+// Let vertical scrolling and pinch zoom stay native. Reserve screen edges for
+// Safari's history gesture, and suppress the link click only after a real drag.
+let swipe = null;
+let suppressClickUntil = 0;
+
+function resetSwipe() {
+  swipe = null;
+}
+
+portalList?.addEventListener("touchstart", (event) => {
+  resetSwipe();
+  if (event.touches.length !== 1) return;
+  const touch = event.touches[0];
+  if (touch.clientX < 24 || touch.clientX > window.innerWidth - 24) return;
+  swipe = { id: touch.identifier, x: touch.clientX, y: touch.clientY, dx: 0, dy: 0, axis: null };
+}, { passive: true });
+
+portalList?.addEventListener("touchmove", (event) => {
+  if (!swipe) return;
+  if (event.touches.length !== 1) { resetSwipe(); return; }
+  const touch = [...event.touches].find((item) => item.identifier === swipe.id);
+  if (!touch) { resetSwipe(); return; }
+  swipe.dx = touch.clientX - swipe.x;
+  swipe.dy = touch.clientY - swipe.y;
+  if (!swipe.axis && Math.max(Math.abs(swipe.dx), Math.abs(swipe.dy)) > 12) {
+    swipe.axis = Math.abs(swipe.dx) > Math.abs(swipe.dy) * 1.5 ? "horizontal" : "vertical";
+  }
+  if (swipe.axis === "horizontal" && event.cancelable) event.preventDefault();
+}, { passive: false });
+
+portalList?.addEventListener("touchend", (event) => {
+  const gesture = swipe;
+  resetSwipe();
+  if (!gesture || gesture.axis === "vertical" || event.touches.length) return;
+  const touch = [...event.changedTouches].find((item) => item.identifier === gesture.id);
+  if (!touch) return;
+  const dx = touch.clientX - gesture.x;
+  const dy = touch.clientY - gesture.y;
+  if (gesture.axis !== "horizontal" && (Math.abs(dx) <= 12 || Math.abs(dx) <= Math.abs(dy) * 1.5)) return;
+  suppressClickUntil = Date.now() + 500;
+  if (event.cancelable) event.preventDefault();
+  const threshold = Math.max(64, Math.min(100, window.innerWidth * 0.18));
+  if (Math.abs(dx) < threshold || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  const next = dx < 0 ? "dev" : "production";
+  if (next !== document.documentElement.dataset.environment) setEnvironment(next);
+}, { passive: false });
+
+portalList?.addEventListener("touchcancel", resetSwipe, { passive: true });
+portalList?.addEventListener("click", (event) => {
+  if (event.detail !== 0 && Date.now() < suppressClickUntil) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}, { capture: true });
+
+// A BFCache page resumes its old DOM and compositor, rather than loading again.
+// Reset the root scroll offset before restoring the saved position so WebKit
+// does not keep a stale upper scroll boundary after returning from another app.
+let suspendedScroll = null;
+let restoreFrame = null;
+try { window.history.scrollRestoration = "manual"; } catch {}
+
+function cancelScrollRestore() {
+  if (restoreFrame !== null) window.cancelAnimationFrame(restoreFrame);
+  restoreFrame = null;
+}
+
+window.addEventListener("pagehide", () => {
+  cancelScrollRestore();
+  resetSwipe();
+  suppressClickUntil = 0;
+  stopStatusChecks();
+  suspendedScroll = { x: Math.max(0, window.scrollX), y: Math.max(0, window.scrollY) };
+  try {
+    window.history.replaceState({ ...window.history.state, portalScroll: suspendedScroll }, "");
+  } catch {}
+});
+
+window.addEventListener("pageshow", (event) => {
+  resetSwipe();
+  suppressClickUntil = 0;
+  cancelScrollRestore();
+  const historyReturn = event.persisted || window.performance?.getEntriesByType("navigation")[0]?.type === "back_forward";
+  if (historyReturn) {
+    const position = suspendedScroll || window.history.state?.portalScroll;
+    if (position && Number.isFinite(position.x) && Number.isFinite(position.y)) {
+      const root = document.scrollingElement || document.documentElement;
+      // body must not retain an independent offset while the root is scrolling.
+      if (root !== document.body) document.body.scrollTop = 0;
+      window.scrollTo({ left: 0, top: 0, behavior: "instant" });
+      restoreFrame = window.requestAnimationFrame(() => {
+        restoreFrame = null;
+        const maxY = Math.max(0, root.scrollHeight - window.innerHeight);
+        window.scrollTo({ left: position.x, top: Math.max(0, Math.min(position.y, maxY)), behavior: "instant" });
+      });
+    }
+  }
+  stopStatusChecks();
+  refreshDevStatus();
+});
+
+// A user gesture takes precedence over a queued restoration frame.
+window.addEventListener("touchstart", cancelScrollRestore, { passive: true });
+window.addEventListener("pointerdown", cancelScrollRestore, { passive: true });
+window.addEventListener("wheel", cancelScrollRestore, { passive: true });
