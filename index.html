@@ -17,6 +17,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script>
+      const standalone = navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+      document.documentElement.dataset.standalone = String(standalone);
       try {
         const savedTheme = localStorage.getItem("portal-theme");
         const theme = savedTheme === "light" || savedTheme === "dark"
@@ -25,8 +27,8 @@
         document.documentElement.dataset.theme = theme;
       } catch {}
     </script>
-    <link rel="stylesheet" href="/styles.css?v=20261101-1" />
-    <script src="/script.js?v=20261101-1" defer></script>
+    <link rel="stylesheet" href="/styles.css?v=20261101-2" />
+    <script src="/script.js?v=20261101-2" defer></script>
   </head>
   <body>
     <main class="page-shell">
@@ -66,6 +68,7 @@
         <span class="visually-hidden" id="portal-announcement" aria-live="polite"></span>
       </div>
 
+      <div class="portal-stage">
       <nav class="portal-list" id="portal-list" data-view="rows" aria-label="เว็บแอปทั้งหมด">
         <article class="portal-row trip">
           <a class="portal-link" href="https://trip.basnana.com/" data-dev-href="https://bn-trip.basnana.com/">
@@ -203,6 +206,7 @@
           </a>
         </article>
       </nav>
+      </div>
 
       <footer>
         <span>Made by Bas</span>

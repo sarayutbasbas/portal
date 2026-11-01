@@ -1,4 +1,8 @@
 const portalList = document.querySelector("#portal-list");
+const portalStage = document.querySelector(".portal-stage");
+const pageShell = document.querySelector(".page-shell");
+const isStandalone = document.documentElement.dataset.standalone === "true";
+if (isStandalone) pageShell?.setAttribute("tabindex", "-1");
 const viewButtons = [...document.querySelectorAll("[data-view-option]")];
 const themeButton = document.querySelector("#theme-button");
 const announcement = document.querySelector("#portal-announcement");
@@ -34,6 +38,7 @@ const statusBadges = new Map(portalCards.map((card) => {
 let statusTimer;
 let statusController;
 let statusGeneration = 0;
+const lastStatuses = new Map();
 
 function stopStatusChecks() {
   window.clearTimeout(statusTimer);
@@ -60,6 +65,7 @@ async function refreshDevStatus() {
       badge.textContent = state === "down" && result.httpStatus
         ? `เข้าไม่ได้ · ${result.httpStatus}` : labels[state] || "ตรวจสอบไม่ได้";
       badge.title = `${result?.detail || "ไม่มีผลการตรวจสอบ"}${data.checkedAt ? ` · ตรวจเมื่อ ${new Date(data.checkedAt).toLocaleTimeString("th-TH")}` : ""}`;
+      lastStatuses.set(card, { state, text: badge.textContent, title: badge.title });
     }
   } catch {
     if (generation !== statusGeneration) return;
@@ -91,10 +97,12 @@ function setEnvironment(environment, shouldSave = true) {
     const badge = devBadges.get(link);
     if (badge) badge.hidden = !isDev;
     const statusBadge = statusBadges.get(card);
+    const cached = lastStatuses.get(card);
     statusBadge.hidden = !isDev;
-    statusBadge.dataset.state = "checking";
-    statusBadge.textContent = "กำลังตรวจสอบ";
-    statusBadge.removeAttribute("title");
+    statusBadge.dataset.state = cached?.state || "checking";
+    statusBadge.textContent = cached?.text || "กำลังตรวจสอบ";
+    if (cached) statusBadge.title = cached.title;
+    else statusBadge.removeAttribute("title");
     link.setAttribute("href", destination);
     card.querySelector(".portal-domain").textContent = new URL(destination).hostname;
   });
@@ -105,6 +113,52 @@ function setEnvironment(environment, shouldSave = true) {
     writeStorage("portal-environment", environment);
     say(`เปลี่ยนเป็นโหมด ${isDev ? "Dev" : "Production"} แล้ว มี ${count} แอป`);
   }
+}
+
+let environmentTransition = null;
+
+function finishEnvironmentTransition() {
+  environmentTransition?.cleanup();
+}
+
+function changeEnvironment(environment) {
+  if (!validEnvironments.has(environment) || environment === document.documentElement.dataset.environment) return;
+  finishEnvironmentTransition();
+  if (!portalStage || !portalList?.animate || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    setEnvironment(environment);
+    return;
+  }
+  const oldHeight = portalList.getBoundingClientRect().height;
+  const snapshot = portalList.cloneNode(true);
+  snapshot.removeAttribute("id");
+  snapshot.classList.add("portal-snapshot");
+  snapshot.setAttribute("aria-hidden", "true");
+  snapshot.inert = true;
+  portalStage.append(snapshot);
+  setEnvironment(environment);
+  portalStage.style.minHeight = `${Math.max(oldHeight, portalList.getBoundingClientRect().height)}px`;
+  const direction = environment === "dev" ? -1 : 1;
+  const distance = portalStage.getBoundingClientRect().width;
+  const animations = [];
+  const transition = { cleanup() {
+    animations.forEach((animation) => animation.cancel());
+    snapshot.remove();
+    if (environmentTransition === transition) {
+      portalStage.style.minHeight = "";
+      environmentTransition = null;
+    }
+  } };
+  environmentTransition = transition;
+  try {
+    const timing = { duration: 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" };
+    animations.push(snapshot.animate([
+      { transform: "translateX(0)" }, { transform: `translateX(${direction * distance}px)` },
+    ], timing));
+    animations.push(portalList.animate([
+      { transform: `translateX(${-direction * distance}px)` }, { transform: "translateX(0)" },
+    ], timing));
+    Promise.all(animations.map((animation) => animation.finished)).then(transition.cleanup, transition.cleanup);
+  } catch { transition.cleanup(); }
 }
 
 function readStorage(key, fallback) {
@@ -165,11 +219,14 @@ const storedEnvironment = readStorage("portal-environment", "production");
 setEnvironment(validEnvironments.has(storedEnvironment) ? storedEnvironment : "production", false);
 
 environmentButtons.forEach((button) => {
-  button.addEventListener("click", () => setEnvironment(button.dataset.environmentOption));
+  button.addEventListener("click", () => changeEnvironment(button.dataset.environmentOption));
 });
 
 viewButtons.forEach((button) => {
-  button.addEventListener("click", () => setView(button.dataset.viewOption));
+  button.addEventListener("click", () => {
+    finishEnvironmentTransition();
+    setView(button.dataset.viewOption);
+  });
 });
 
 themeButton?.addEventListener("click", () => {
@@ -178,7 +235,14 @@ themeButton?.addEventListener("click", () => {
 
 document.addEventListener("visibilitychange", () => {
   stopStatusChecks();
-  if (!document.hidden) refreshDevStatus();
+  if (document.hidden) {
+    finishEnvironmentTransition();
+    resetSwipe();
+    if (isStandalone) { saveScrollPosition(); pendingAppReturn = true; }
+  } else {
+    if (isStandalone && pendingAppReturn) restoreAppScroll();
+    refreshDevStatus();
+  }
 });
 
 // Let vertical scrolling and pinch zoom stay native. Reserve screen edges for
@@ -225,7 +289,7 @@ portalList?.addEventListener("touchend", (event) => {
   const threshold = Math.max(64, Math.min(100, window.innerWidth * 0.18));
   if (Math.abs(dx) < threshold || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   const next = dx < 0 ? "dev" : "production";
-  if (next !== document.documentElement.dataset.environment) setEnvironment(next);
+  changeEnvironment(next);
 }, { passive: false });
 
 portalList?.addEventListener("touchcancel", resetSwipe, { passive: true });
@@ -236,50 +300,80 @@ portalList?.addEventListener("click", (event) => {
   }
 }, { capture: true });
 
-// A BFCache page resumes its old DOM and compositor, rather than loading again.
-// Reset the root scroll offset before restoring the saved position so WebKit
-// does not keep a stale upper scroll boundary after returning from another app.
+// Installed iPhone apps may return from an out-of-scope browser sheet without
+// pageshow. Recover on visibility/focus too, using the app's own scroll area.
 let suspendedScroll = null;
 let restoreFrame = null;
-try { window.history.scrollRestoration = "manual"; } catch {}
+let pendingAppReturn = false;
+try { window.history.scrollRestoration = isStandalone ? "manual" : "auto"; } catch {}
 
 function cancelScrollRestore() {
   if (restoreFrame !== null) window.cancelAnimationFrame(restoreFrame);
   restoreFrame = null;
 }
 
-window.addEventListener("pagehide", () => {
-  cancelScrollRestore();
-  resetSwipe();
-  suppressClickUntil = 0;
-  stopStatusChecks();
-  suspendedScroll = { x: Math.max(0, window.scrollX), y: Math.max(0, window.scrollY) };
+function saveScrollPosition() {
+  suspendedScroll = isStandalone
+    ? { x: Math.max(0, pageShell.scrollLeft), y: Math.max(0, pageShell.scrollTop) }
+    : { x: Math.max(0, window.scrollX), y: Math.max(0, window.scrollY) };
   try {
     window.history.replaceState({ ...window.history.state, portalScroll: suspendedScroll }, "");
   } catch {}
+}
+
+function releaseCardFocus() {
+  const focused = document.activeElement;
+  if (focused?.closest?.(".portal-link")) focused.blur();
+}
+
+function restoreAppScroll() {
+  pendingAppReturn = false;
+  cancelScrollRestore();
+  releaseCardFocus();
+  pageShell.focus?.({ preventScroll: true });
+  const position = suspendedScroll || window.history.state?.portalScroll;
+  if (!position || !Number.isFinite(position.x) || !Number.isFinite(position.y)) return;
+  // Only the installed app uses manual restoration. Its document stays at 0;
+  // the scroller is restored once, without jumping to 0 and then back down.
+  window.scrollTo({ left: 0, top: 0, behavior: "instant" });
+  restoreFrame = window.requestAnimationFrame(() => {
+    restoreFrame = null;
+    pageShell.scrollLeft = position.x;
+    pageShell.scrollTop = Math.max(0, Math.min(position.y, pageShell.scrollHeight - pageShell.clientHeight));
+  });
+}
+
+portalList?.addEventListener("click", (event) => {
+  if (event.defaultPrevented || !event.target.closest?.(".portal-link")) return;
+  saveScrollPosition();
+  if (isStandalone) pendingAppReturn = true;
+});
+
+window.addEventListener("pagehide", () => {
+  cancelScrollRestore();
+  finishEnvironmentTransition();
+  resetSwipe();
+  suppressClickUntil = 0;
+  stopStatusChecks();
+  saveScrollPosition();
+  releaseCardFocus();
+  if (isStandalone) pendingAppReturn = true;
 });
 
 window.addEventListener("pageshow", (event) => {
   resetSwipe();
   suppressClickUntil = 0;
+  finishEnvironmentTransition();
   cancelScrollRestore();
   const historyReturn = event.persisted || window.performance?.getEntriesByType("navigation")[0]?.type === "back_forward";
-  if (historyReturn) {
-    const position = suspendedScroll || window.history.state?.portalScroll;
-    if (position && Number.isFinite(position.x) && Number.isFinite(position.y)) {
-      const root = document.scrollingElement || document.documentElement;
-      // body must not retain an independent offset while the root is scrolling.
-      if (root !== document.body) document.body.scrollTop = 0;
-      window.scrollTo({ left: 0, top: 0, behavior: "instant" });
-      restoreFrame = window.requestAnimationFrame(() => {
-        restoreFrame = null;
-        const maxY = Math.max(0, root.scrollHeight - window.innerHeight);
-        window.scrollTo({ left: position.x, top: Math.max(0, Math.min(position.y, maxY)), behavior: "instant" });
-      });
-    }
-  }
+  if (historyReturn) releaseCardFocus();
+  if (isStandalone && (historyReturn || pendingAppReturn)) restoreAppScroll();
   stopStatusChecks();
   refreshDevStatus();
+});
+
+window.addEventListener("focus", () => {
+  if (isStandalone && pendingAppReturn && !document.hidden) restoreAppScroll();
 });
 
 // A user gesture takes precedence over a queued restoration frame.

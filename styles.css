@@ -97,6 +97,32 @@ a {
   padding: calc(10px + env(safe-area-inset-top)) var(--page-pad) 0;
 }
 
+/* The installed iPhone app owns its scroll area, independently of the native
+   out-of-scope browser sheet and its restored document focus/scroll offset. */
+html[data-standalone="true"],
+html[data-standalone="true"] body {
+  height: 100%;
+  overflow: hidden;
+}
+
+html[data-standalone="true"] body {
+  position: fixed;
+  inset: 0;
+  min-height: 0;
+}
+
+html[data-standalone="true"] .page-shell {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+}
+
+html[data-standalone="true"] .page-shell:focus {
+  outline: none;
+}
+
 .control-bar {
   min-height: 58px;
   margin: 0 0 14px;
@@ -167,11 +193,6 @@ a {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-.control-button:hover {
-  color: var(--text);
-  transform: translateY(-1px);
-}
-
 .control-button:focus-visible {
   outline: 2px solid #e4ad24;
   outline-offset: 3px;
@@ -184,6 +205,19 @@ html[data-theme="light"] .sun-icon {
 
 html[data-theme="light"] .moon-icon {
   display: block;
+}
+
+.portal-stage {
+  position: relative;
+  overflow: clip;
+}
+
+.portal-snapshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
 }
 
 .portal-list {
@@ -497,17 +531,10 @@ html[data-theme="light"] .environment-button[data-environment-option="dev"][aria
 .movie { --row-accent: #e5aaff; }
 .movie .portal-art { object-position: 65% center; }
 
-.portal-row:hover .portal-art {
-  transform: scale(1.025);
-  filter: saturate(1.06);
-}
-
-.portal-row:hover::after,
-.portal-row:focus-within::after {
+.portal-row:has(.portal-link:focus-visible)::after {
   border-color: var(--row-accent);
 }
 
-.portal-row:hover .visit-icon,
 .portal-link:focus-visible .visit-icon {
   color: #fff;
   border-color: var(--row-accent);
